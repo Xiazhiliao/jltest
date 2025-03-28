@@ -4,15 +4,14 @@ let characterPack = {
 	name: "jlAddition",
 	connect: true,
 	character: {
-
+		jlsgsk_yangwan:["female","shu",3,["jlsg_youyan","jlsg_zhuihuan"],["name:杨|null"]],
 		jlsgsk_gygs_sunce:["male","wu",4,["jlsg_gygs_jiang","jlsg_gygs_weifeng"],["name:孙|策"]],
 	},
 	characterSort: {
 		jlAddition: {
-			jlsg_sk_character_config: [],
+			jlsg_sk_character_config: ["jlsgsk_yangwan"],
 			jlsg_soul_character_config: [],
 			jlsg_sy_character_config: [],
-			jlsg_skpf_character_config: [],
 			jlsg_skpf_character_config: ["jlsgsk_gygs_sunce"],
 		},
 	},
@@ -23,6 +22,7 @@ let characterPack = {
 		jlsgsk_guohuai: "垂问秦雍",
 		jlsgsk_huangchengyan: "沔阳雅士",
 		jlsgsk_lvkai: "尽忠凯南",
+		jlsgsk_yangwan:"融沫之鲡",
 
 		jlsgsoul_pangtong: "凤唳九天",
 		jlsgsoul_sp_zhaoyun: "破渊追天",
@@ -39,6 +39,7 @@ let characterPack = {
 	},
 	translate: {
 		jlAddition: "极略补充",
+		jlsgsk_yangwan:"SK杨婉",
 		jlsgsk_gygs_sunce:"SPF孙策",
 		jlsgsk_gygs_sunce_ab:"孙策",
 	},
