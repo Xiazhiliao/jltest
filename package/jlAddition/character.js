@@ -5,6 +5,7 @@ let characterPack = {
 	connect: true,
 	character: {
 
+		jlsgsk_gygs_sunce:["male","wu",4,["jlsg_gygs_jiang","jlsg_gygs_weifeng"],["name:孙|策"]],
 	},
 	characterSort: {
 		jlAddition: {
@@ -12,6 +13,7 @@ let characterPack = {
 			jlsg_soul_character_config: [],
 			jlsg_sy_character_config: [],
 			jlsg_skpf_character_config: [],
+			jlsg_skpf_character_config: ["jlsgsk_gygs_sunce"],
 		},
 	},
 	characterTitle: {
@@ -28,6 +30,7 @@ let characterPack = {
 		jlsgsoul_caiwenji: "霜弦哀世",
 
 		jlsgsk_smdq_diaochan: "水墨丹青",
+		jlsgsk_gygs_sunce:"冠勇盖世",
 	},
 	characterIntro: {//武将简介    
 	},
@@ -36,6 +39,8 @@ let characterPack = {
 	},
 	translate: {
 		jlAddition: "极略补充",
+		jlsgsk_gygs_sunce:"SPF孙策",
+		jlsgsk_gygs_sunce_ab:"孙策",
 	},
 	dynamicTranslate: {//动态翻译
 
