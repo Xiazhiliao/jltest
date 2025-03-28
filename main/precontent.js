@@ -35,8 +35,16 @@ export const precontent = function (jltext) {
     //补充部分
     if (game.hasExtension("极略")) {
       game.runAfterExtensionLoaded("极略", function () {
-        const version = lib.extensionPack["极略"]?.version;
-        /*if (version == "2.6.1003") {
+        const jilueVersion = lib.extensionPack["极略"]?.version;
+        const jilueData = String(jilueVersion).split(".")[2];
+        const month = Number(jilueData.slice(0, 2)),
+          day = Number(jilueData.slice(2));
+        let check=false;
+        if (month > 3) check = true;
+        else if (month == 3) {
+          if (day >= 31) check = true;
+        }
+        if (check) {
           for (let name in jlAddition.character) {
             if (name != "jlsgsoul") {
               const skills = jlAddition.character[name][3];
@@ -55,7 +63,7 @@ export const precontent = function (jltext) {
               delete jlAddition.translate[name + "_prefix"];
             }
           }
-        };*/
+        };
         if (Object.keys(jlAddition.character).length) {
           game.import('character', function () { return jlAddition });
           lib.config.all.characters.add('jlAddition');
