@@ -5,7 +5,7 @@ let characterPack = {
 	connect: true,
 	character: {
 		jlsgsk_yangwan:["female","shu",3,["jlsg_youyan","jlsg_zhuihuan"],["name:杨|null"]],
-		jlsgsk_gygs_sunce:["male","wu",4,["jlsg_gygs_jiang","jlsg_gygs_weifeng"],["name:孙|策"]],
+		jlsgsk_gygs_sunce:["male","wu",4,["jlsg_gygs_angyang","jlsg_gygs_weifeng"],["name:孙|策"]],
 	},
 	characterSort: {
 		jlAddition: {

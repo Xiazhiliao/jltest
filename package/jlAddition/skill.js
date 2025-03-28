@@ -3,7 +3,7 @@ let skillInfo = {
 	//在这里编写技能。
 	skill: {
 		//孙策[冠勇盖世]
-		jlsg_gygs_jiang: {
+		jlsg_gygs_angyang: {
 			audio: "ext:极略:2",
 			trigger: {
 				player: "useCardToPlayered",
@@ -26,8 +26,8 @@ let skillInfo = {
 				let name = ["sha", "juedou"].filter(i => trigger.card.name != i)[0];
 				const card = get.autoViewAs({ name }, []);
 				event.result = await player.gainPlayerCard("h", giver)
-					.set("prompt", get.prompt("jlsg_gygs_jiang", giver))
-					.set("prompt2", lib.translate["jlsg_gygs_jiang_info"])
+					.set("prompt", get.prompt("jlsg_gygs_angyang", giver))
+					.set("prompt2", lib.translate["jlsg_gygs_angyang_info"])
 					.set("ai", () => {
 						if (get.event("check")) return get.event().getRand();
 						return false;
@@ -38,7 +38,7 @@ let skillInfo = {
 						if (giver.countGainableCards(player, "h") > 1) return gain + use > 0;
 						else return gain > 0;
 					})())
-					.set("logSkill", ["jlsg_gygs_jiang", giver])
+					.set("logSkill", ["jlsg_gygs_angyang", giver])
 					.set("chooseonly", true)
 					.forResult();
 				if (event.result) {
@@ -242,8 +242,8 @@ let skillInfo = {
 		},
 	},
 	translate: {
-		jlsg_gygs_jiang: "激昂",
-		jlsg_gygs_jiang_info: "当你使用【杀】或【决斗】仅指定一名其他角色为目标后，或成为其他角色使用这些牌的目标后，你可以获得其一张手牌，若如此做，此牌结算后，若其有手牌，你视为对其使用另一种牌。",
+		jlsg_gygs_angyang: "昂扬",
+		jlsg_gygs_angyang_info: "当你使用【杀】或【决斗】仅指定一名其他角色为目标后，或成为其他角色使用这些牌的目标后，你可以获得其一张手牌，若如此做，此牌结算后，若其有手牌，你视为对其使用另一种牌。",
 		jlsg_gygs_weifeng: "威风",
 		jlsg_gygs_weifeng_info: "其他角色的准备阶段，你可以与该角色拼点：若你赢，你摸两张牌并视为对其使用一张不计入次数的【杀】；否则，你可以令其摸两张牌并视为对你使用一张不计入次数的【杀】。",
 		jlsg_youyan: "诱言",
