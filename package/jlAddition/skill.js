@@ -174,7 +174,12 @@ let skillInfo = {
 			audio: "ext:极略:2",
 			onremove: true,
 			intro: {
-				content: "$已对你造成过伤害",
+				nocount: true,
+				content(storage, player) {
+					const targets = storage[0];
+					if (targets.length) return `${get.translation(targets)}和你有仇`;
+					return `你暂时没有仇家`;
+				},
 			},
 			trigger: { player: "phaseZhunbeiBegin" },
 			filter(event, player) {
