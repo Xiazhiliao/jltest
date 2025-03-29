@@ -176,9 +176,15 @@ let skillInfo = {
 			intro: {
 				nocount: true,
 				content(storage, player) {
-					const targets = storage[0];
-					if (targets.length) return `${get.translation(targets)}和你有仇`;
-					return `你暂时没有仇家`;
+					console.log(storage);
+					const targets1 = storage[0],
+						targets2 = storage[1];
+					let str = "";
+					if (targets1.length) str += `昨日之仇，如芒在背：${get.translation(targets1)}`;
+					if (targets1.length && targets2.length) str += "<br>";
+					if (targets2.length) str += `今日之举，不过权计：${get.translation(targets2)}`;
+					if (!str.length) return `暂时没有仇家`;
+					return str;
 				},
 			},
 			trigger: { player: "phaseZhunbeiBegin" },
@@ -203,7 +209,7 @@ let skillInfo = {
 						};
 					}
 				}
-				player.storage.jlsg_zhuihuan[0] = player.storage.jlsg_zhuihuan[1];
+				player.storage.jlsg_zhuihuan[0] = [];
 				player.markSkill("jlsg_zhuihuan");
 			},
 			group: "jlsg_zhuihuan_record",
@@ -226,16 +232,17 @@ let skillInfo = {
 								player.storage.jlsg_zhuihuan[1].add(trigger.source);
 								player.storage.jlsg_zhuihuan[1].sortBySeat();
 							}
-							player.markSkill("jlsg_zhuihuan");
 						}
 						else {
 							if (!player.storage.jlsg_zhuihuan) {
 								player.storage.jlsg_zhuihuan = [[], []];
 							}
 							else {
+								player.storage.jlsg_zhuihuan[0] = player.storage.jlsg_zhuihuan[1].slice();
 								player.storage.jlsg_zhuihuan[1] = [];
 							}
 						}
+						player.markSkill("jlsg_zhuihuan");
 					}
 				},
 			},
@@ -249,7 +256,8 @@ let skillInfo = {
 		jlsg_youyan: "诱言",
 		jlsg_youyan_info: "出牌阶段对每名角色限一次，当你使用基本牌或非延时锦囊牌后，你可以选择一名角色，视为其使用此牌（须选择目标的牌的目标为你），然后你回复1点体力并摸三张牌。",
 		jlsg_zhuihuan: "追还",
-		jlsg_zhuihuan_info: "准备阶段，你可以对你的上个回合开始后对你造成过伤害的其他角色各造成2点伤害。"
+		jlsg_zhuihuan_info: "准备阶段，你可以对你的上个回合开始后对你造成过伤害的其他角色各造成2点伤害。",
+		jlsg_zhuihuan_append: '<span style="font-family: yuanli">记录截取自上个回合开始时至当前回合开始时</span>'
 	},
 	dynamicTranslate: {
 	},
