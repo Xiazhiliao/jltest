@@ -176,7 +176,6 @@ let skillInfo = {
 			intro: {
 				nocount: true,
 				content(storage, player) {
-					console.log(storage);
 					const targets1 = storage[0],
 						targets2 = storage[1];
 					let str = "";
