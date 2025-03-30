@@ -42,7 +42,7 @@ export const precontent = function (jltext) {
         let check=false;
         if (month > 3) check = true;
         else if (month == 3) {
-          if (day >= 31) check = true;
+          if (day >= 30) check = true;
         }
         if (check) {
           for (let name in jlAddition.character) {

@@ -5065,7 +5065,7 @@ export default {
     jlsgsy_shiao: {
       audio: "ext:极略:true",
       trigger: { player: ["phaseZhunbeiBegin", "phaseJieshuBegin"] },
-      filter: () => true,
+      filter: (event, player) => player.hasUseTarget("sha"),
       direct: true,
       content() {
         player.chooseUseTarget('###是否发动【恃傲】？###视为使用一张【杀】', { name: 'sha' }, false, 'nodistance').set("logSkill", 'jlsgsy_shiao');
