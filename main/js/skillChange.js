@@ -869,7 +869,6 @@ export default {
               else if (i == "随机失去1个技能") return target.getSkills(null, false, false).length;
               return true;
             }).randomGet();
-            next.setContent(lib.skill.jlsg_zhenge.effect[color == "red" ? "positive" : "negative"][effect]);
             if (effect != "从牌堆或弃牌堆随机获得1-2张装备牌，1-2张基本牌，1-2张锦囊牌") {
               let str = effect.slice();
               if (str.indexOf("1-") > -1) {
@@ -882,6 +881,7 @@ export default {
               else if (str.indexOf("1") > -1 && str.indexOf("+1") == -1) str = str.replace(`1`, "一");
               game.log(target, `随机到的${color == "red" ? "正" : "负"}面效果为<span style='color:#e83535'>${str}</span>`);
             }
+            next.setContent(lib.skill.jlsg_zhenge.effect[color == "red" ? "positive" : "negative"][effect]);
             await next;
           },
         },
