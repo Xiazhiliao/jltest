@@ -3062,6 +3062,14 @@ export default {
     },
     translate: {
       jlsg_huju_info: "锁定技，一名角色的回合开始时，你摸四张牌；若为你的回合，你减1点体力上限，失去“虎踞”，获得“制衡”、“虎缚”、“雄略”。",
+    },
+    info: function () {
+      lib.characterPack["jlsg_soul"].jlsgsoul_sunquan.maxHp = 5;
+      lib.characterPack["jlsg_soul"].jlsgsoul_sunquan.hp = 5;
+      if (!_status.connectMode) {
+        lib.character.jlsgsoul_sunquan.maxHp = 5;
+        lib.character.jlsgsoul_sunquan.hp = 5;
+      }
     }
   },
   //SK神司马懿
