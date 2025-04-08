@@ -2811,7 +2811,7 @@ export default {
   //SK神孙权
   jlsgsoul_sunquan: {
     jlsg_huju: {
-      audio: "ext:极略:2",
+      audio: "ext:极略:true",
       init(player) {
         player.maxHp = player.maxHp + 1;
         player.hp = player.hp + 1;
@@ -2851,7 +2851,7 @@ export default {
       },
     },
     jlsg_xionglve: {
-      audio: 'ext:极略:2',
+      audio: 'ext:极略/jlsg_xionglve1.mp3',
       marktext: `略`,
       intro: {
         markcount: "expansion",
@@ -2988,7 +2988,7 @@ export default {
       group: 'jlsg_xionglve_draw',
       subSkill: {
         draw: {
-          audio: "jlsg_xionglve",
+          audio: "ext:极略/jlsg_xionglve21.mp3",
           trigger: { player: "phaseDrawBegin1" },
           filter: (event) => !event.numFixed,
           prompt: `雄略：是否放弃摸牌，改为亮出牌堆顶的两张牌`,
