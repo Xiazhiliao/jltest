@@ -1627,7 +1627,6 @@ export default {
               };
               player.storage.jlsg_sanjue.given.add(info[1]);
               await target.addSkills(info[1]);
-              if (target.hasSkill(info[1])) target.popup(info[1]);
             },
             ai2(target, targets) {
               const player = get.player(),
@@ -3682,16 +3681,49 @@ export default {
   },
   //SP神张角
   jlsgsoul_sp_zhangjiao: {
+    jlsg_yinyang_s: {
+      audio: "ext:极略:2",
+      derivation: ['jlsg_jiyang', 'jlsg_jiyin', 'jlsg_xiangsheng'],
+      forced: true,
+      charlotte: true,
+      unique: true,
+      trigger: {
+        player: ['showCharacterEnd', 'changeHpAfter', 'gainMaxHpAfter', 'loseMaxHpAfter'],
+      },
+      delay: false,
+      init: function (player) {
+        if (player.hasSkill('jlsg_yinyang_s')) {
+          player.useSkill('jlsg_yinyang_s');
+        };
+      },
+      onremove: true,
+      filter: function (event, player) {
+        let skill = lib.skill.jlsg_yinyang_s.getCurrentSkill(player);
+        return !player.hasSkill(skill, null, false, false) || player.isTempBanned(skill);
+      },
+      async content(event, trigger, player) {
+        const skill = lib.skill.jlsg_yinyang_s.getCurrentSkill(player);
+        await player.changeSkills([skill], [player.storage.jlsg_yinyang_s].filter(i => i));
+        game.broadcastAll((player, skill) => { player.storage.jlsg_yinyang_s = skill; }, player, skill);
+      },
+      getCurrentSkill(player) {
+        let diff = player.hp - player.getDamagedHp();
+        if (diff > 0) return 'jlsg_jiyang';
+        else if (diff < 0) return 'jlsg_jiyin';
+        else return 'jlsg_xiangsheng';
+      },
+    },
     jlsg_jiyang: {
       audio: "ext:极略:2",
       sub: true,
       unique: true,
+      thundertext: true,
       init: function (player) {
         player.addMark('jlsg_jiyang', 3);
       },
       onremove(player, skill) {
-        let cards = [], num = player.storage[skill]
-        delete player.storage[skill];
+        let cards = [], num = player.storage[skill];
+        player.clearMark(skill);
         while (num > 0) {
           let card = get.cardPile(function (card) {
             if (cards.includes(card)) return false;
@@ -3701,7 +3733,7 @@ export default {
           if (card) cards.add(card);
           else break;
         }
-        if (cards) player.gain(cards, 'gain2');
+        if (cards.length) player.gain(cards, 'gain2');
       },
       marktext: '阳',
       intro: {
@@ -3713,9 +3745,7 @@ export default {
         global: ['equipAfter', 'addJudgeAfter', 'gainAfter', 'loseAsyncAfter', 'addToExpansionAfter'],
       },
       filter: function (event, player) {
-        if (!player.countMark('jlsg_jiyang')) {
-          return false;
-        }
+        if (!player.countMark('jlsg_jiyang')) return false;
         var evt = event.getl(player);
         if (!evt || !evt.cards2 || !evt.cards2.length) return false;
         for (var i of evt.cards2) {
@@ -3723,48 +3753,40 @@ export default {
         }
         return false;
       },
-      direct: true,
-      content: function () {
-        'step 0'
-        player.chooseTarget(get.prompt(event.name))
+      async cost(event, trigger, player) {
+        event.result = await player.chooseTarget(get.prompt("jlsg_jiyang"))
           .set('prompt2', '令一名角色回复1点体力,若其未受伤则改为加1点体力上限.')
-          .set('ai', function (target, targets) {
-            var player = _status.event.player;
+          .set('ai', target => {
+            var player = get.player();
             var eff = get.attitude(player, target);
             eff = 2 * Math.atan(eff);
             if (!target.isHealthy()) {
               eff = get.recoverEffect(target, player, player);
             }
             return eff - 0.5 + Math.random();
-          });
-        'step 1'
-        if (!result.bool) {
-          event.finish();
-          return;
-        }
-        player.logSkill(event.name, result.targets);
+          }).forResult();
+      },
+      async content(event, trigger, player) {
         player.removeMark(event.name);
-        var target = result.targets[0];
+        const target = event.targets[0];
         if (player.ai.shown < target.ai.shown) {
           player.addExpose(0.2);
         }
-        if (target.isHealthy()) {
-          target.gainMaxHp();
-        } else {
-          target.recover(player);
-        }
+        if (target.isHealthy()) await target.gainMaxHp();
+        else await target.recover(player);
       },
     },
     jlsg_jiyin: {
       audio: "ext:极略:2",
       sub: true,
       unique: true,
+      thundertext: true,
       init: function (player) {
         player.addMark('jlsg_jiyin', 3);
       },
       onremove(player, skill) {
-        let cards = [], num = player.storage[skill]
-        delete player.storage[skill];
+        let cards = [], num = player.storage[skill];
+        player.clearMark(skill);
         while (num > 0) {
           let card = get.cardPile(function (card) {
             if (cards.includes(card)) return false;
@@ -3774,7 +3796,7 @@ export default {
           if (card) cards.add(card);
           else break;
         }
-        if (cards) player.gain(cards, 'gain2');
+        if (cards.length) player.gain(cards, 'gain2');
       },
       marktext: '阴',
       intro: {
@@ -3786,9 +3808,7 @@ export default {
         global: ['equipAfter', 'addJudgeAfter', 'gainAfter', 'loseAsyncAfter', 'addToExpansionAfter'],
       },
       filter: function (event, player) {
-        if (!player.countMark('jlsg_jiyin')) {
-          return false;
-        }
+        if (!player.countMark('jlsg_jiyin')) return false;
         var evt = event.getl(player);
         if (!evt || !evt.cards2 || !evt.cards2.length) return false;
         for (var i of evt.cards2) {
@@ -3796,49 +3816,41 @@ export default {
         }
         return false;
       },
-      direct: true,
-      content: function () {
-        'step 0'
-        player.chooseTarget(get.prompt(event.name))
+      async cost(event, trigger, player) {
+        event.result = await player.chooseTarget(get.prompt("jlsg_jiyin"))
           .set('prompt2', '对一名角色造成1点雷电伤害,若其已受伤则改为减1点体力上限.')
-          .set('ai', function (target, targets) {
-            var player = _status.event.player;
+          .set('ai', target => {
+            var player = get.player();
             var eff = get.attitude(player, target);
             eff = -2 * Math.atan(eff);
             if (target.isHealthy()) {
               eff = get.damageEffect(target, player, player, 'thunder');
             }
             return eff - 0.5 + Math.random();
-          });
-        'step 1'
-        if (!result.bool) {
-          event.finish();
-          return;
-        }
-        player.logSkill(event.name, result.targets);
+          }).forResult();
+      },
+      async content(event, trigger, player) {
         player.removeMark(event.name);
-        var target = result.targets[0];
+        const target = event.targets[0];
         if (player.ai.shown < target.ai.shown) {
           player.addExpose(0.2);
         }
-        if (target.isHealthy()) {
-          target.damage('thunder');
-        } else {
-          target.loseMaxHp();
-        }
+        if (target.isHealthy()) await target.damage('thunder', player);
+        else await target.loseMaxHp();
       },
     },
     jlsg_xiangsheng: {
       audio: "ext:极略:2",
       sub: true,
       unique: true,
+      thundertext: true,
       init: function (player) {
         player.addMark('jlsg_xiangsheng', 6);
       },
       onremove(player, skill) {
-        let num = player.storage[skill]
-        delete player.storage[skill];
-        player.draw(num);
+        let num = player.storage[skill];
+        player.clearMark(skill);
+        if (num > 0) player.draw(num);
       },
       marktext: '生',
       intro: {
@@ -3849,52 +3861,35 @@ export default {
         player: 'loseAfter',
         global: ['equipAfter', 'addJudgeAfter', 'gainAfter', 'loseAsyncAfter', 'addToExpansionAfter'],
       },
-      filter: function (event, player) {
-        if (!player.countMark('jlsg_xiangsheng')) {
-          return false;
-        }
-        var evt = event.getl(player);
-        if (!evt || !evt.cards2 || !evt.cards2.length) return false;
-        for (var i of evt.cards2) {
-          if (['black', 'red'].includes(get.color(i, player))) return true;
-        }
-        return false;
-      },
-      direct: true,
-      frequent: true,
-      content: function () {
-        'step 0'
-        event.colors = [];
-        var evt = trigger.getl(player);
-        event.cards = evt.cards2;
-        for (var i of evt.cards2) {
+      getIndex(event, player) {
+        const colors = [],
+          evt = event.getl(player);
+        for (let i of evt.cards2) {
           let color = get.color(i, player);
-          if (color == 'black') event.colors.add('red');
-          if (color == 'red') event.colors.add('black');
-        }
-        if (!event.colors.length) {
-          console.warn('jlsg_xiangsheng no color found!');
-          event.finish();
-          return;
-        }
-        'step 1'
-        event.color = event.colors.shift();
-        player.chooseBool(get.prompt(event.name), true)
-          .set('prompt2', `你可以摸一张${lib.translate[event.color]}牌`)
-          .set('frequentSkill', event.name);
-        'step 2'
-        if (result.bool) {
-          player.logSkill(event.name);
-          player.removeMark(event.name);
-          var card = get.cardPile2(function (card) {
-            return !event.cards.includes(card) && get.color(card, false) == event.color;
-          });
-          if (card) player.gain(card, 'gain2');
-        }
-
-        if (player.countMark(event.name) && event.colors.length) {
-          event.goto(1);
-        }
+          if (color == 'black') colors.add('red');
+          if (color == 'red') colors.add('black');
+        };
+        return colors;
+      },
+      filter: function (event, player, triggername, color) {
+        if (!player.countMark('jlsg_xiangsheng') || !color) return false;
+        return true;
+      },
+      frequent: true,
+      async cost(event, trigger, player) {
+        const { indexedData: color } = event;
+        event.result = player.chooseBool(get.prompt("jlsg_xiangsheng"))
+          .set('prompt2', `你可以摸一张${lib.translate[color]}牌`)
+          .set('frequentSkill', "jlsg_xiangsheng")
+          .forResult();
+      },
+      async content(event, trigger, player) {
+        const { indexedData: color } = event;
+        player.removeMark(event.name);
+        const card = get.cardPile2(function (card) {
+          return get.color(card, false) == color;
+        });
+        if (card) await player.gain(card, 'gain2');
       },
     },
     translate: {

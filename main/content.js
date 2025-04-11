@@ -41,23 +41,6 @@ export const content = function (config, pack) {
     };
   }*/
   game.runAfterExtensionLoaded("极略", function () {//极略修改
-    if (get.mode() != "boss") {
-      const packList = ["jlAddition", "jlRumor", "jlsg_sy"];
-      for (let packName of packList) {
-        const pack = lib.characterPack[packName];
-        for (let name in pack) {
-          if (!name.includes("baonu")) continue;
-          const info = pack[name][4];
-          for (let i of info) {
-            if (i.includes("boss")) {
-              lib.characterPack[packName][name][4].remove(i);
-              if (lib.character[name]) lib.character[name][4].remove(i);
-            }
-          };
-          if (!lib.config.forbidai_user.includes(name)) lib.config.forbidai.remove(name);
-        };
-      };
-    }
     for (const i in config) {
       if (!config[i] || config[i] == "false") continue;
       if (i == "bugFix") {//bug修复
@@ -102,7 +85,30 @@ export const content = function (config, pack) {
         }
         else game.saveExtensionConfig("极略测试", "cardReconstitute", false);
       }
+      if (get.mode() != "boss") {
+        const packList = ["jlAddition", "jlRumor", "jlsg_sy"];
+        for (let packName of packList) {
+          const pack = lib.characterPack[packName];
+          for (let name in pack) {
+            if (!name.includes("baonu")) continue;
+            const info = pack[name][4];
+            for (let i of info) {
+              if (i.includes("boss")) {
+                lib.characterPack[packName][name][4].remove(i);
+                if (lib.character[name]) lib.character[name][4].remove(i);
+              }
+            };
+            if (!lib.config.forbidai_user.includes(name)) lib.config.forbidai.remove(name);
+            /*
+            const skills = pack[name][3];
+            for (let i of skills) {
+              delete lib.skill[i].charlotte;
+              delete lib.skill[i].unique;
+            }
+              */
+          };
+        };
+      }
     };
   });
-
 }
