@@ -187,7 +187,6 @@ export default {
               return 10 - get.value(button.link, player);
             });
           if (result.bool) {
-            event.swapped = true;
             const replacedCards = result.links.reduce((cards, vcard) => {
               if (vcard.cards) cards.addArray(vcard.cards);
               return cards;
@@ -212,7 +211,7 @@ export default {
             .setContent(lib.card[event.card.name].onEquip2)
         }
       };
-    lib.card["jlsgqs_taipingyaoshu"].onEquip = async function (event, trigger, player) {
+    lib.card["jlsgqs_taipingyaoshu"].onEquip2 = async function (event, trigger, player) {
       const { result } = await player.chooseToDiscard('h', function (card) {
         return get.color(card) == 'red';
       }).set('ai', function (card) {
