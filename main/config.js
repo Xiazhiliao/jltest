@@ -143,7 +143,7 @@ const configInfo = {
       },
       jlsgsoul_sunquan: {
         name: "SK神孙权(更新)",
-        intro: "调整【虎踞】",
+        intro: "调整【虎踞】,血量调整",
         init: false,
       },
       jlsgsoul_simayi: {
