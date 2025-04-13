@@ -172,7 +172,7 @@ export default {
     const cardPacks = lib.cardPack,
       baowuEquip = async function (event, trigger, player) {
         if (!event.card) return;
-        if (player.getVEquips(event.card.name)) return;
+        if (!player.getVEquips(event.card.name)) return;
         const baowu = player.getVCards("e", i => {
           if (event.card == i) return false;
           if (!lib.filter.canBeReplaced(i, player)) return false;
