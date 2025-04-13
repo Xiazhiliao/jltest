@@ -168,103 +168,84 @@ export default {
     };
   },
   //七杀包规则重构
-  cardReconstitute: function (bool) {
-    if (bool) {
-      const cardPacks = lib.cardPack,
-        baowuEquip = async function () {
-          const event = get.event(),
-            player = get.player(),
-            card = get.event("card");
-          event.baowu = player.getCards("e", i => {
-            if (event.card.cards && event.card.cards.includes(i)) return false;
-            if (!lib.filter.canBeReplaced(i, get.player())) return false;
-            let info = lib.card[i.name],
-              subtype = get.subtype(i);
-            return info && info.jlsgqs_qiwu || ["equip3", "equip4", "equip5"].includes(subtype);
-          });
-          if (event.baowu.length > 2) {
-            const cards = event.baowu;
-            const { result } = await player.chooseButton(["选择替换掉一装备牌", [cards, "vcard"]], true, 1)
-              .set("ai", button => {
-                const player = get.player();
-                return -get.value(button.link, player);
-              });
-            if (result.bool) {
-              player.$throw(result.links, 1000);
-              await player.lose(result.links, "visible").set("type", "equip").set("getlx", false);
+  cardReconstitute: function () {
+    const cardPacks = lib.cardPack,
+      baowuEquip = async function (event, trigger, player) {
+        if (!event.card) return;
+        if (player.getVEquips(event.card.name)) return;
+        const baowu = player.getVCards("e", i => {
+          if (event.card == i) return false;
+          if (!lib.filter.canBeReplaced(i, player)) return false;
+          const subtype = get.subtype(i);
+          return ["equip3", "equip4", "equip5", "equip6"].includes(subtype);
+        });
+        if (baowu.length > 1) {
+          const num = baowu.length - 1;
+          const { result } = await player.chooseButton([`选择替换掉${get.cnNumber(num)}张装备牌`, [baowu, "vcard"]], true, num)
+            .set("ai", button => {
+              const player = get.player();
+              return 10 - get.value(button.link, player);
+            });
+          if (result.bool) {
+            event.swapped = true;
+            const replacedCards = result.links.reduce((cards, vcard) => {
+              if (vcard.cards) cards.addArray(vcard.cards);
+              return cards;
+            }, []);
+            const loseEvent = player.lose(replacedCards, "visible").set("type", "equip").set("getlx", false);
+            if (result.links.some(cardx => get.info(cardx, false)?.loseThrow)) {
+              player.$throw(replacedCards, 1000);
             }
+            await loseEvent;
+            for (let cardx of replacedCards) {
+              if (cardx.willBeDestroyed("discardPile", player, event)) cardx.selfDestroy(event);
+            };
+            for (let i of result.links) {
+              player.removeVirtualEquip(i);
+            };
           }
-          if (lib.card[card.name].onEquip2) {
-            await game.createEvent(card.name + "onEquip", false)
-              .setContent(lib.card[card.name].onEquip2)
-              .set("card", event.card)
-              .set("player", event.player);
-          }
-        };
-      for (const pack in cardPacks) {
-        const cards = cardPacks[pack];
-        for (const i of cards) {
-          let info = lib.card[i];
-          if (!info) continue;
-          if (info.subtype == "equip5") {
-            delete lib.card[i].subtype;
-            delete lib.card[i].subtypes;
-            lib.card[i].jlsgqs_qiwu = true;
-            if (pack != "jlsg_qs" && info.onEquip) lib.card[i].onEquip2 = info.onEquip;
-            if (i != "jlsgqs_taipingyaoshu") lib.card[i].onEquip = baowuEquip;
-            else lib.card[i].onEquip = async function () {
-              const event = get.event(),
-                player = get.player(),
-                card = get.event("card");
-              event.baowu = player.getCards("e", i => {
-                if (event.card.cards && event.card.cards.includes(i)) return false;
-                if (!lib.filter.canBeReplaced(i, get.player())) return false;
-                let info = lib.card[i.name],
-                  subtype = get.subtype(i);
-                return info && info.jlsgqs_qiwu || ["equip3", "equip4", "equip5"].includes(subtype);
-              });
-              if (event.baowu.length > 2) {
-                const cards = event.baowu;
-                let { result } = await player.chooseButton(["选择替换掉一装备牌", [cards, "vcard"]], true, 1)
-                  .set("ai", button => {
-                    const player = get.player();
-                    return -get.value(button.link, player);
-                  });
-                if (result.bool) {
-                  player.$throw(result.links, 1000);
-                  await player.lose(result.links, "visible").set("type", "equip").set("getlx", false);
-                }
-              }
-              if (lib.card[card.name].onEquip2) {
-                await game.createEvent(card.name + "onEquip", false)
-                  .setContent(lib.card[card.name].onEquip2)
-                  .set("card", event.card)
-                  .set("player", event.player);
-              }
-              let { result } = await player.chooseToDiscard('h', function (card) {
-                return get.color(card) == 'red';
-              }).set('ai', function (card) {
-                let player = get.player();
-                if (card.name == 'tao') return -10;
-                if (card.name == 'jiu' && player.hp == 1) return -10;
-                if (player.hp == 1) return 15 - ai.get.value(card);
-                return 8 - ai.get.value(card);
-              }).set('prompt2', '太平要术：弃置一张红色手牌，否则失去1点体力');
-              if (!result.bool) {
-                await player.loseHp();
-              }
-            }
-          }
-          else if (["equip3", "equip4", "equip5"].includes(get.subtype(i))) {
-            lib.card[i].jlsgqs_zuoqi = true;
-            if (pack != "jlsg_qs" && info.onEquip) lib.card[i].onEquip2 = info.onEquip;
-            lib.card[i].onEquip = baowuEquip;
-          }
-          if (get.mode() == "boss" && get.subtype(i) == "equip1") lib.card[i].recastable = true;
         }
+        if (lib.card[event.card.name].onEquip2) {
+          await game.createEvent(event.card.name + "onEquip", false)
+            .set("card", event.card)
+            .set("player", event.player)
+            .setContent(lib.card[event.card.name].onEquip2)
+        }
+      };
+    lib.card["jlsgqs_taipingyaoshu"].onEquip = async function (event, trigger, player) {
+      const { result } = await player.chooseToDiscard('h', function (card) {
+        return get.color(card) == 'red';
+      }).set('ai', function (card) {
+        const player = get.player();
+        if (card.name == 'tao') return -10;
+        if (card.name == 'jiu' && player.hp == 1) return -10;
+        if (player.hp == 1) return 15 - ai.get.value(card);
+        return 8 - ai.get.value(card);
+      }).set('prompt2', '太平要术：弃置一张红色手牌，否则失去1点体力');
+      if (!result?.bool) await player.loseHp();
+    };
+    for (const pack in cardPacks) {
+      const cards = cardPacks[pack];
+      for (const i of cards) {
+        let info = lib.card[i];
+        if (!info) continue;
+        if (info.subtype == "equip5") {
+          lib.card[i].subtypes = [];
+          if (pack != "jlsg_qs") {
+            if (info.onEquip) lib.card[i].onEquip2 = info.onEquip;
+          }
+          else lib.card[i].skills.remove("jlsgqs_relic");
+          lib.card[i].onEquip = baowuEquip;
+        }
+        else if (["equip3", "equip4", "equip6"].includes(info.subtype)) {
+          if (pack != "jlsg_qs" && info.onEquip) lib.card[i].onEquip2 = info.onEquip;
+          lib.card[i].onEquip = baowuEquip;
+        }
+        if (get.mode() == "boss" && get.subtype(i) == "equip1") lib.card[i].recastable = true;
       }
     }
-    if (!lib.config.mount_combine && bool) {
+
+    if (!lib.config.mount_combine) {
       game.saveConfig("mount_combine", true);
       setTimeout(function () {
         game.reload();

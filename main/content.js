@@ -81,7 +81,7 @@ export const content = function (config, pack) {
       else if (i == "groupChange") configPack.groupChange();//变更魔势力
       else if (i == "cardReconstitute") {//七杀包规则重构
         if (lib.config.cards.includes("jlsg_qs") && lib.config.extension_极略_qsRelic) {
-          configPack.cardReconstitute(true);
+          configPack.cardReconstitute();
         }
         else game.saveExtensionConfig("极略测试", "cardReconstitute", false);
       }
