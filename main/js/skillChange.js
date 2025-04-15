@@ -2519,7 +2519,7 @@ export default {
             if (player.countCards('h', 'juedou') > 0) {
               return 2;
             }
-            var ph = player.get('h');
+            var ph = player.getCards('h');
             var num = 0;
             for (var i = 0; i < ph.length; i++) {
               if (get.tag(ph[i], 'damage')) num++;
@@ -2555,7 +2555,7 @@ export default {
         "step 2"
         if (event.targets2.length) {
           var cur = event.targets2.shift();
-          if (cur && cur.num('he')) cur.discard(cur.get('he'));
+          if (cur && cur.countCards('he')) cur.discard(cur.getCards('he'));
           event.redo();
         }
         "step 3"
@@ -3120,7 +3120,7 @@ export default {
         result: {
           player: function (player) {
             if (player.hp < 3 && player.countCards("he") < 4) return 1;
-            var cards = player.get('he');
+            var cards = player.getCards('he');
             var suits = [];
             for (var i = 0; i < cards.length; i++) {
               if (!suits.includes(get.suit(cards[i]))) {

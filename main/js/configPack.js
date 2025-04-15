@@ -169,6 +169,22 @@ export default {
   },
   //七杀包规则重构
   cardReconstitute: function () {
+    lib.skill._jlsgqs_relic = {
+      trigger: {
+        player: "enterGame",
+        global: "phaseBefore",
+      },
+      forced: true,
+      popup: false,
+      filter(event, player) {
+        if (player.expandedSlots?.["equip5"] >= 2) return false;
+        return event.name != "phase" || game.phaseNumber == 0;
+      },
+      async content(event, trigger, player) {
+        await player.expandEquip(5);
+        player.removeSkill(event.name);
+      }
+    };
     const cardPacks = lib.cardPack,
       baowuEquip = async function (event, trigger, player) {
         if (!event.card) return;
@@ -229,7 +245,6 @@ export default {
         let info = lib.card[i];
         if (!info) continue;
         if (info.subtype == "equip5") {
-          lib.card[i].subtypes = [];
           if (pack != "jlsg_qs") {
             if (info.onEquip) lib.card[i].onEquip2 = info.onEquip;
           }
