@@ -3089,7 +3089,7 @@ export default {
       marktext: "通",
       intro: { content: true },
       prompt: "通天：摸四张牌并弃置任意张花色各不相同的牌，获得各花色的技能。",
-      derivation: ['jlsg_tongtian_wei', 'jlsg_tongtian_shu', 'jlsg_tongtian_qun', 'jlsg_tongtian_wu'],
+      derivation: ['fankui', 'guanxing', 'wansha', 'zhiheng'],
       async contentBefore(event, trigger, player) {
         player.awakenSkill('jlsg_tongtian');
         await player.draw(4);
