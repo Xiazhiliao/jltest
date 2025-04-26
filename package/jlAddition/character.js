@@ -21,11 +21,6 @@ let characterPack = {
 		jlsgsk_huangchengyan: "沔阳雅士",
 		jlsgsk_lvkai: "尽忠凯南",
 		jlsgsk_yangwan: "融沫之鲡",
-
-		jlsgsoul_pangtong: "凤唳九天",
-		jlsgsoul_sp_zhaoyun: "破渊追天",
-		jlsgsoul_sp_sunshangxiang: "星流霆击",
-		jlsgsoul_caiwenji: "霜弦哀世",
 	},
 	characterIntro: {//武将简介    
 	},

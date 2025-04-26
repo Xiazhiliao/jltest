@@ -1244,7 +1244,7 @@ export default {
             });
           if (result.bool) {
             const name = result.links[0][0];
-            lib.skill.jlsg_xinghan.reinitCharacters(player, name, insert);
+            await lib.skill.jlsg_xinghan.reinitCharacters(player, name, insert);
           }
         });
         return next;
