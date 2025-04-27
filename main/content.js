@@ -1,6 +1,6 @@
 import { lib, game, ui, get, ai, _status } from '../../../noname.js'
 import configPack from '../main/js/configPack.js'
-export const content = function (config, pack) {
+export const content = function (config, extPack) {
   //在这里编写启动阶段执行的代码。
   //检测极略扩展是否开启
   if (!game.hasExtension("极略")) {

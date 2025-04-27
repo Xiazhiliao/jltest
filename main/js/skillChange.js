@@ -232,7 +232,7 @@ export default {
   //SK关索
   jlsgsk_guansuo: {
     jlsg_zhengnan: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       enable: "phaseUse",
       usable: 1,
       filterTarget: function (card, player, target) {
@@ -280,7 +280,7 @@ export default {
   //SP姜维
   jlsgsk_jiangwei: {
     jlsg_kunfen: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       trigger: { player: ["damageEnd", "loseHpEnd", "loseMaxHpAfter"] },
       forced: true,
       content() {
@@ -313,7 +313,7 @@ export default {
       },
     },
     jlsg_caiyu: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       init: (player) => {
         player.addInvisibleSkill("jlsg_caiyu_flash");
         player.storage.jlsg_caiyu = {};
@@ -450,7 +450,7 @@ export default {
   //SK南华老仙
   jlsgsk_nanhualaoxian: {
     jlsg_xianshou: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       derivation: "jlsg_tiandao",
       trigger: { player: "phaseBegin" },
       async cost(event, trigger, player) {
@@ -487,7 +487,7 @@ export default {
       },
     },
     jlsg_tiandao: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       marktext: "道",
       mark: true,
       intro: {
@@ -579,7 +579,7 @@ export default {
       },
     },
     jlsg_chengfeng: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       intro: {
         content: "mark",
       },
@@ -628,7 +628,7 @@ export default {
   //SK孙登
   jlsgsk_sundeng: {
     jlsg_kuangbi: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       trigger: { global: 'useCard2' },
       filter: function (event, player) {
         if (player.hasSkill("jlsg_kuangbi_used")) return false;
@@ -680,7 +680,7 @@ export default {
   //SK万年公主
   jlsgsk_wanniangongzhu: {
     jlsg_zhenge: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       init(player) {
         player.addInvisibleSkill("jlsg_zhenge_use");
         game.addGlobalSkill("jlsg_zhenge_mod", player);
@@ -824,7 +824,7 @@ export default {
           },
         },
         use: {
-          audio: "ext:极略:2",
+          audio: "ext:极略/audio/skill:2",
           trigger: { player: "useCardToTargeted" },
           filter(event, player, name, target) {
             if (!event.target) return false;
@@ -961,7 +961,7 @@ export default {
           }
         },
       },
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       unique: true,
       priority: 1,
       get getCharacters() {//角色列表
@@ -1472,7 +1472,7 @@ export default {
         nocount: true,
         content: "limited",
       },
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       skillAnimation: true,
       limited: true,
       trigger: { source: 'damageSource' },
@@ -1496,7 +1496,7 @@ export default {
       },
     },
     jlsg_choujue: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       locked: false,
       usable: 1,
       viewAs: {
@@ -1582,7 +1582,7 @@ export default {
           }
         },
       },
-      audio: "ext:极略:3",
+      audio: "ext:极略/audio/skill:3",
       enable: "phaseUse",
       direct: true,
       onChooseToUse(event) {
@@ -1815,7 +1815,7 @@ export default {
   //SK神曹操
   jlsgsoul_caocao: {
     jlsg_guixin: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       trigger: { player: "damageEnd" },
       filter(event) {
         return event.num > 0;
@@ -1917,7 +1917,7 @@ export default {
   //SK神典韦
   jlsgsoul_dianwei: {
     jlsg_zhiji: {
-      audio: "ext:极略:3",
+      audio: "ext:极略/audio/skill:3",
       usable: 1,
       enable: "phaseUse",
       filter: function (event, player) {
@@ -1949,7 +1949,7 @@ export default {
       group: ["jlsg_zhiji_damage"],
       subSkill: {
         damage: {
-          audio: "ext:极略:1",
+          audio: "ext:极略/audio/skill:1",
           trigger: {
             player: ["damageEnd", "phaseZhunbeiBegin"],
           },
@@ -2050,7 +2050,7 @@ export default {
           return num + game.countPlayer(cur => cur != player);
         },
       },
-      audio: "ext:极略:1",
+      audio: "ext:极略/audio/skill:1",
       trigger: { player: "phaseDrawBegin1" },
       filter(event, player) {
         return !event.fixed && event.num && game.countPlayer(cur => cur != player);
@@ -2087,7 +2087,7 @@ export default {
       intro: {
         content: "正在遭受女性毒打",
       },
-      audio: "ext:极略:4",
+      audio: "ext:极略/audio/skill:4",
       filter(event, player) {
         const num = game.countPlayer(current => {
           return current.hasMark("jlsg_meixin");
@@ -2191,7 +2191,7 @@ export default {
   //SK神黄盖
   jlsgsoul_huanggai: {
     jlsg_lianti: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       forced: true,
       delay: false,
       trigger: {
@@ -2267,7 +2267,7 @@ export default {
       },
     },
     jlsg_yanlie: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       enable: 'phaseUse',
       usable: 1,
       filterCard: true,
@@ -2340,7 +2340,7 @@ export default {
   //SK神贾诩
   jlsgsoul_jiaxu: {
     jlsg_yanmie: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       enable: "phaseUse",
       filter: function (event, player) {
         return player.countCards('he', { suit: 'spade' }) > 0;
@@ -2389,7 +2389,7 @@ export default {
       },
     },
     jlsg_shunshi: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       trigger: {
         target: "useCardToBegin",
       },
@@ -2449,7 +2449,7 @@ export default {
         player: "damageEnd",
       },
       forced: true,
-      audio: "ext:极略:true",
+      audio: "ext:极略/audio/skill:true",
       filter: function (event) {
         return event.num != 0;
       },
@@ -2461,7 +2461,7 @@ export default {
       },
     },
     jlsg_wumou: {
-      audio: "ext:极略:1",
+      audio: "ext:极略/audio/skill:1",
       trigger: {
         player: "useCard",
       },
@@ -2495,7 +2495,7 @@ export default {
       },
     },
     jlsg_wuqian: {
-      audio: "ext:极略:1",
+      audio: "ext:极略/audio/skill:1",
       derivation: ["wushuang", "jlsgsy_shenji"],
       trigger: {
         player: ["jlsg_kuangbao1After", "jlsg_kuangbaoAfter", "jlsg_wumouAfter", "jlsg_shenfenAfter"],
@@ -2531,7 +2531,7 @@ export default {
       },
     },
     jlsg_shenfen: {
-      audio: "ext:极略:1",
+      audio: "ext:极略/audio/skill:1",
       enable: "phaseUse",
       usable: 1,
       filter: function (event, player) {
@@ -2588,7 +2588,7 @@ export default {
   //SK神刘备
   jlsgsoul_liubei: {
     jlsg_jizhao: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       intro: {
         content: 'mark',
       },
@@ -2759,7 +2759,7 @@ export default {
           },
         },
         remove: {
-          audio: "ext:极略:2",
+          audio: "ext:极略/audio/skill:2",
           trigger: { player: "phaseBegin" },
           filter: () => game.hasPlayer(current => current.hasMark('jlsg_jizhao')),
           prompt: `激诏：你可以移去场上所有角色的“激诏”标记`,
@@ -2790,7 +2790,7 @@ export default {
       },
     },
     jlsg_junwang: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       trigger: {
         global: ["phaseUseBegin", "phaseUseEnd"],
       },
@@ -2810,7 +2810,7 @@ export default {
   //SK神孙权
   jlsgsoul_sunquan: {
     jlsg_huju: {
-      audio: "ext:极略:true",
+      audio: "ext:极略/audio/skill:true",
       init(player) {
         player.maxHp = player.maxHp + 1;
         player.hp = player.hp + 1;
@@ -2830,7 +2830,7 @@ export default {
       },
     },
     jlsg_hufu: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       enable: "phaseUse",
       usable: 1,
       filter: (event, player) => game.hasPlayer(current => current != player && current.countCards('e')),
@@ -3072,7 +3072,7 @@ export default {
   //SK神司马懿
   jlsgsoul_simayi: {
     jlsg_jilve: {
-      audio: "ext:极略:3",
+      audio: "ext:极略/audio/skill:3",
       trigger: { player: "useCardAfter" },
       forced: true,
       content() {
@@ -3080,7 +3080,7 @@ export default {
       },
     },
     jlsg_tongtian: {
-      audio: "ext:极略:1",
+      audio: "ext:极略/audio/skill:1",
       enable: 'phaseUse',
       unique: true,
       skillAnimation: true,
@@ -3193,7 +3193,7 @@ export default {
           }
         },
       },
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       trigger: {
         global: ["gameDrawEnd", "phaseEnd"],
       },
@@ -3362,7 +3362,7 @@ export default {
         player.storage.jlsg_langxi ??= [];
       },
       priority: 2,
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       trigger: {
         global: "phaseBefore",
         player: ["enterGame", "useCard"],
@@ -3451,7 +3451,7 @@ export default {
       }
     },
     jlsg_shenyin: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       marktext: "隐",
       intro: {
         content(storage, player) {
@@ -3613,7 +3613,7 @@ export default {
   //SK神张角
   jlsgsoul_zhangjiao: {
     jlsg_dianjie: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       trigger: { player: ['phaseDrawBefore', 'phaseUseBefore'] },
       prompt: function (event, player) {
         if (event.name == 'phaseDraw') {
@@ -3680,7 +3680,7 @@ export default {
   //SP神张角
   jlsgsoul_sp_zhangjiao: {
     jlsg_yinyang_s: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       derivation: ['jlsg_jiyang', 'jlsg_jiyin', 'jlsg_xiangsheng'],
       forced: true,
       charlotte: true,
@@ -3712,7 +3712,7 @@ export default {
       },
     },
     jlsg_jiyang: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       sub: true,
       unique: true,
       thundertext: true,
@@ -3775,7 +3775,7 @@ export default {
       },
     },
     jlsg_jiyin: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       sub: true,
       unique: true,
       thundertext: true,
@@ -3838,7 +3838,7 @@ export default {
       },
     },
     jlsg_xiangsheng: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       sub: true,
       unique: true,
       thundertext: true,
@@ -3899,7 +3899,7 @@ export default {
   //SK神张飞
   jlsgsoul_zhangfei: {
     jlsg_shayi: {
-      audio: "ext:极略:4",
+      audio: "ext:极略/audio/skill:4",
       mod: {
         targetInRange(card) {
           if (card.name === 'sha') return true;
@@ -4083,7 +4083,7 @@ export default {
       },
     },
     jlsg_zhenhun: {
-      audio: "ext:极略:true",
+      audio: "ext:极略/audio/skill:true",
       enable: "phaseUse",
       usable: 1,
       selectTarget: -1,
@@ -4153,7 +4153,7 @@ export default {
   //SK神赵云
   jlsgsoul_zhaoyun: {
     jlsg_juejing: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       mod: {
         maxHandcardBase: (player) => player.maxHp,
       },
@@ -4218,7 +4218,7 @@ export default {
       },
     },
     jlsg_longhun: {
-      audio: "ext:极略:4",
+      audio: "ext:极略/audio/skill:4",
       mod: {
         aiValue(player, card, num) {
           if (!card || card.cards && card.cards.length != 1) return;
@@ -4406,7 +4406,7 @@ export default {
   //SK神郭嘉
   jlsgsoul_guojia: {
     jlsg_tianqi: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       enable: ['chooseToUse', 'chooseToRespond'],
       hiddenCard: function (player, name) {
         if (!lib.inpile.includes(name)) return false;
@@ -4573,7 +4573,7 @@ export default {
       },
     },
     jlsg_tianji: {
-      audio: "ext:极略:1",
+      audio: "ext:极略/audio/skill:1",
       trigger: { global: 'phaseUseBegin' },
       frequent: true,
       filter: function (event, player) {
@@ -4631,7 +4631,7 @@ export default {
   //SK神诸葛亮
   jlsgsoul_zhugeliang: {
     jlsg_qixing: {
-      audio: "ext:极略:1",
+      audio: "ext:极略/audio/skill:1",
       mark: true,
       marktext: '星',
       intro: {
@@ -4721,7 +4721,7 @@ export default {
       },
     },
     jlsg_kuangfeng: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       trigger: { player: 'phaseZhunbeiBegin' },
       direct: true,
       filter: function (event, player) {
@@ -4803,7 +4803,7 @@ export default {
       }
     },
     jlsg_dawu: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       trigger: { player: 'phaseJieshuBegin' },
       priority: 1,
       direct: true,
@@ -4896,7 +4896,7 @@ export default {
   //SK神甘宁
   jlsgsoul_ganning: {
     jlsg_lvezhen: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       trigger: { source: "damageSource" },
       filter: function (event, player) {
         if (event.player == player) return false;
@@ -4934,7 +4934,7 @@ export default {
       },
     },
     jlsg_youlong: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       trigger: { global: "phaseBegin" },
       filter(event, player) {
         return event.player != player;
@@ -4960,7 +4960,7 @@ export default {
   //蛇蝎美人[魔蔡夫人]
   jlsgsy_caifuren: {
     jlsgsy_luansi: {
-      audio: "ext:极略:2",
+      audio: "ext:极略/audio/skill:2",
       enable: 'phaseUse',
       usable: 1,
       unique: true,
@@ -5006,7 +5006,7 @@ export default {
       },
     },
     jlsgsy_huoxin: {
-      audio: "ext:极略:1",
+      audio: "ext:极略/audio/skill:1",
       trigger: { player: 'damageBegin4' },
       filter: function (event, player, name) {
         if (event.num < 1) return false;
@@ -5064,7 +5064,7 @@ export default {
   //嗜血狂狼[魔魏延]
   jlsgsy_weiyan: {
     jlsgsy_shiao: {
-      audio: "ext:极略:true",
+      audio: "ext:极略/audio/skill:true",
       trigger: { player: ["phaseZhunbeiBegin", "phaseJieshuBegin"] },
       filter: (event, player) => player.hasUseTarget("sha", false),
       direct: true,

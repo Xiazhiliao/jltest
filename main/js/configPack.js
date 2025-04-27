@@ -33,7 +33,7 @@ export default {
       player.directgain(cards, false);
     };
     lib.skill["jlsgsy_baonu"] = {
-      audio: "ext:极略:1",
+      audio: "ext:极略/audio/skill:1",
       skillAnimation: true,
       trigger: { player: 'changeHp' },
       forced: true,
