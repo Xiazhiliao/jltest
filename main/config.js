@@ -467,6 +467,8 @@ const configInfo = {
           <br>重写“七杀包规则重构”
           <br><li>3.20.17.1
           <br>修复“七杀包规则重构”的部分bug
+          <br><li>3.20.17.2
+          <br>修复音频路径
           `
           );
           this.hth_more = more;
