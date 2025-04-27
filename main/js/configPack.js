@@ -59,7 +59,6 @@ export default {
       },
       content: function () {
         "step 0"
-        var slimName = null;
         if (event.name.length > 12 && event.name.startsWith("jlsgsy_baonu")) slimName = event.name.substr(12);
         else {
           event.finish();
@@ -74,6 +73,7 @@ export default {
         player.insertPhase(event.name);
         event.trigger("jlsgsy_baonuBefore");
         "step 1"
+        game.resetSkills();
         let least = 4;
         if (get.mode() == "boss" && lib.config.extension_极略测试_boss_mode == "hard") least = 6;
         if (player.hp < least) player.hp = least;
