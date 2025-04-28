@@ -1571,7 +1571,7 @@ export default {
       intro: {
         nocount: true,
         mark(dialog, content, player) {
-          var storage = Object.entries(player.storage.jlsg_sanjue.skill);
+          var storage = Object.entries(player.storage?.jlsg_sanjue?.skill || {});
           if (storage && storage.length) {
             if (player == game.me || player.isUnderControl()) {
               dialog.addText(`储备技能数：${storage.map(i => i[1]).flat().length}`);
@@ -1599,8 +1599,7 @@ export default {
         event.set("jlsg_sanjue", buttons);
       },
       filter: (event, player) => {
-        if (Object.entries(event.player.storage?.jlsg_sanjue?.skill ?? {}).length) return true;
-        return event.jlsg_sanjue?.length ?? false;
+        return event.jlsg_sanjue?.length;
       },
       chooseButton: {
         dialog(event, player) {
@@ -1628,6 +1627,7 @@ export default {
               };
               player.storage.jlsg_sanjue.given.add(info[1]);
               await target.addSkills(info[1]);
+              player.markSkill("jlsg_sanjue");
             },
             ai2(target, targets) {
               const player = get.player(),
@@ -1652,11 +1652,13 @@ export default {
           <br><div class="text">${get.skillInfoTranslation(links[0][1], player)}</div>`;
         },
       },
-      getCharacters: function () {
+      get getCharacters() {
         let result = [];
         if (_status.characterlist) result = _status.characterlist;
         else if (_status.connectMode) result = get.charactersOL(() => true);
         else result = get.gainableCharacters(true);
+        delete this.getCharacters;
+        this.getCharacters = result;
         return result;
       },
       skillInfo: function (item, type, position, noclick, node) {
@@ -1748,27 +1750,27 @@ export default {
           audio: "jlsg_sanjue",
           trigger: { player: "useCard" },
           direct: true,
-          content() {
+          async content(event, trigger, player) {
             let s = player.storage.jlsg_sanjue.card[trigger.card.name];
             player.storage.jlsg_sanjue.card[trigger.card.name] = (s || 0) + 1;
             s = player.storage.jlsg_sanjue.card[trigger.card.name];
             if (s != 1 && s != 3) return;
-            player.logSkill(event.name);
-            player.draw();
-            let list1 = lib.skill.jlsg_sanjue.getCharacters().filter(c => get.character(c) && get.character(c, 1) == 'wu').randomSort();
+            await player.logSkill(event.name);
+            await player.draw();
+            let list1 = lib.skill.jlsg_sanjue.getCharacters.filter(c => get.character(c, 1) == 'wu').randomSort();
             const storage = Object.entries(player.storage.jlsg_sanjue.skill).map(i => i[1]).flat();
             for (let name of list1) {
               let skills = get.character(name)[3];
               if (!skills || !skills.length) continue;
-              skills = skills.filter(s => {
-                if (player.storage.jlsg_sanjue.given.includes(s)) return false;
-                if (storage.includes(s)) return false;
+              skills = skills.filter(skill => {
+                if (player.storage.jlsg_sanjue.given.includes(skill)) return false;
+                if (storage.includes(skill)) return false;
                 for (let c of game.filterPlayer()) {
-                  if (c.hasSkill(s)) return false;
+                  if (c.hasSkill(skill, null, false, false)) return false;
                 };
-                const info = get.info(s);
+                const info = get.info(skill);
                 if (!info) return false;
-                return !info.charlotte;
+                return !lib.filter.skillDisabled(skill) && !info.charlotte;
               });
               if (!skills.length) continue;
               if (!player.storage.jlsg_sanjue.skill[name]) player.storage.jlsg_sanjue.skill[name] = [];
@@ -2812,11 +2814,6 @@ export default {
   jlsgsoul_sunquan: {
     jlsg_huju: {
       audio: "ext:极略/audio/skill:true",
-      init(player) {
-        player.maxHp = player.maxHp + 1;
-        player.hp = player.hp + 1;
-        player.update()
-      },
       trigger: { global: "phaseBegin" },
       derivation: ['zhiheng', 'jlsg_hufu', 'jlsg_xionglve'],
       filter: () => true,
