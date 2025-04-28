@@ -57,27 +57,20 @@ export default {
         if (get.mode() == "boss" && lib.config.extension_极略测试_boss_mode == "hard") least = 6;
         return player.hp <= least;
       },
-      content: function () {
-        "step 0"
-        if (event.name.length > 12 && event.name.startsWith("jlsgsy_baonu")) slimName = event.name.substr(12);
-        else {
-          event.finish();
-          return;
-        }
+      async content(event, trigger, player) {
         game.broadcastAll(ui.clear);
-        if (get.mode() == "boss") {
-          if (player.isLinked()) player.link();
-          if (player.isTurnedOver()) player.turnOver();
-          player.discard(player.getCards("j"));
-        }
-        player.insertPhase(event.name);
-        event.trigger("jlsgsy_baonuBefore");
-        "step 1"
         game.resetSkills();
+        await game.delay();
+        if (get.mode() == "boss") {
+          if (player.isLinked()) await player.link();
+          if (player.isTurnedOver()) await player.turnOver();
+          await player.discard(player.getCards("j"));
+        }
+        await event.trigger("jlsgsy_baonuBefore");
         let least = 4;
         if (get.mode() == "boss" && lib.config.extension_极略测试_boss_mode == "hard") least = 6;
         if (player.hp < least) player.hp = least;
-        var name1 = player.name1, name2 = player.name2;
+        let name1 = player.name1, name2 = player.name2;
         if (name1.startsWith('jlsgsy_') && !name1.endsWith('baonu')) {
           game.log(player, "将", get.translation(name1), "变更为", get.translation(name1 + 'baonu'));
           player.reinit(name1, name1 + 'baonu');
@@ -87,15 +80,32 @@ export default {
           player.reinit(name2, name2 + 'baonu');
         }
         player.update();
-        event.trigger("jlsgsy_baonuAfter");
-        "step 2"
-        var evt = _status.event.getParent("phase");
-        if (evt) {
-          _status.event = evt;
-          _status.event.finish();
-          game.log(_status.currentPhase, "结束了回合");
+        await event.trigger("jlsgsy_baonuAfter")
+        let evt = trigger.getParent(1, true);
+        while (evt?.name != "phaseLoop") {
+          if (evt) {
+            if (evt.name == "phase") {
+              evt.pushHandler("onPhase", (event, option) => {
+                if (event.step != 13) {
+                  event.step = 13;
+                  game.broadcastAll(function (player) {
+                    player.classList.remove("glow_phase");
+                    if (_status.currentPhase) {
+                      game.log(_status.currentPhase, "结束了回合");
+                      delete _status.currentPhase;
+                    }
+                  }, event.player);
+                }
+              });
+            }
+            evt.finish();
+            evt._triggered = null;
+            evt = evt.getParent(1, true);
+          }
+          else break;
         }
         _status.paused = false;
+        player.insertPhase(event.name);
       },
       group: ['jlsgsy_baonu2'],
     };

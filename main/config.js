@@ -23,6 +23,7 @@ const configInfo = {
   boss_mode: {
     name: "三英挑战模式难度",
     init: "normal",
+    intro: `必须先开启“魔势力重建”，否则无效`,
     item: {
       "normal": "普通",
       "hard": "困难",

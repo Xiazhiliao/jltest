@@ -1562,7 +1562,7 @@ export default {
   jlsgsk_zhaoyan: {
     jlsg_sanjue: {
       init(player, skill) {
-        player.storage[skill] = {
+        player.storage.jlsg_sanjue = {
           card: {},
           skill: {},
           given: [],
@@ -1587,7 +1587,8 @@ export default {
       direct: true,
       onChooseToUse(event) {
         if (game.online) return;
-        let buttons = [], storage = Object.entries(event.player.storage.jlsg_sanjue.skill);
+        let buttons = [],
+          storage = Object.entries(event.player.storage?.jlsg_sanjue?.skill || {});
         if (!storage || !storage.length) return;
         for (let info of storage) {
           if (!info[1].length) continue;
