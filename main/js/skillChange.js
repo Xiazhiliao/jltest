@@ -1013,7 +1013,7 @@ export default {
           let info = [player.hp, player.maxHp, player.hujia];
           if (player.isZhu2()) {//主公/地主加成
             let bool = false;
-            if (Array.isArray(get.character(name))) bool = !get.character(name)[4] || (get.character(name)[4] && !get.character(name)[4].includes("noZhuHp"));
+            if (Array.isArray(get.character(name))) bool = (get.character(name)[4] && !get.character(name)[4].includes("noZhuHp"));
             else bool = !get.character(name).initFilters.includes("noZhuHp");
             if (bool) {
               info[0]++;
@@ -1048,7 +1048,7 @@ export default {
           })
           .filter(i => !dead.includes(i));
         if (!group.length) return;
-        var storageGroups = Object.entries(player.storage.jlsg_xinghan).map(i => i[1][0]);
+        let storageGroups = Object.values(player.storage.jlsg_xinghan).map(i => i[0]);
         if (Object.keys(player.storage.jlsg_xinghan).length == 4) {
           group = group.filter(i => storageGroups.includes(i));
         }
@@ -1061,13 +1061,13 @@ export default {
         if (result.control != "cancel2") {
           event.result = {
             bool: true,
-            cost_data: result.control,
+            cost_data: { control: result.control },
           }
         }
         else event.result = { bool: false };
       },
       async content(event, trigger, player) {
-        const gro = event.cost_data,
+        const gro = event.cost_data.control,
           storage = Object.entries(player.storage.jlsg_xinghan).map(i => [i[0], i[1][0], i[1][1][0]]),
           list = lib.skill.jlsg_xinghan.getCharacters[gro]
             .filter(i => !storage.map(i => i[0]).includes(i))
@@ -1188,20 +1188,19 @@ export default {
           player.reinit2(newPairs);
           event.addSkill = addSkills.slice(0).unique();
           event.removeSkill = removeSkills.slice(0).unique();
-          if (event.addSkill.length) {
-            player.addSkill(event.addSkill, null, null, true);
-          }
+
+          //失去技能
           if (event.removeSkill.length) {
             for (let skill of event.removeSkill) {
               _status.event.clearStepCache();
-              var info = lib.skill[skill];
+              let info = lib.skill[skill];
               game.broadcastAll(
                 function (player, skill) {
                   player.skills.remove(skill);
                   player.hiddenSkills.remove(skill);
                   player.invisibleSkills.remove(skill);
                   delete player.tempSkills[skill];
-                  for (var i in player.additionalSkills) {
+                  for (let i in player.additionalSkills) {
                     player.additionalSkills[i].remove(skill);
                   }
                 },
@@ -1218,6 +1217,11 @@ export default {
               player.enableSkill(skill + "_awake");
             };
           }
+          //获得技能
+          if (event.addSkill.length) {
+            player.addSkill(event.addSkill);
+          }
+
           player.storage.jlsg_xinghan[event.info.from.name][1][0] = player.hp;
           player.storage.jlsg_xinghan[event.info.from.name][1][1] = player.maxHp;
           player.storage.jlsg_xinghan[event.info.from.name][1][2] = player.hujia;
@@ -1236,6 +1240,7 @@ export default {
           org = Object.keys(player.storage.jlsg_xinghan)[0];
         const next = game.createEvent("jlsg_xinghan_choose", false);
         next.player = player;
+        next.insert = insert;
         next.setContent(async function (event, trigger, player) {
           const { result } = await player.chooseButton(true, ["兴汉：请选择要上场的武将", [character, lib.skill.jlsg_xinghan.characterInfo]])
             .set('ai', function (button) {
@@ -1244,7 +1249,9 @@ export default {
             });
           if (result.bool) {
             const name = result.links[0][0];
-            await lib.skill.jlsg_xinghan.reinitCharacters(player, name, insert);
+
+            //这是个insertPhase，不用await
+            lib.skill.jlsg_xinghan.reinitCharacters(player, name, event.insert);
           }
         });
         return next;
@@ -1259,9 +1266,9 @@ export default {
         } else { node = ui.create.div(".button.character", position) }
         node._link = item;
         node.link = item;
-        var double = get.is.double(node._link, true);
+        let double = get.is.double(node._link, true);
         if (double) node._changeGroup = true;
-        var func = function (node, item) {
+        let func = function (node, item) {
           node.setBackground(item, "character");
           if (node.node) {
             node.node.name.remove();
@@ -1276,10 +1283,10 @@ export default {
             group: ui.create.div(".identity", node),
             intro: ui.create.div(".intro", node),
           };
-          var infoitem = get.character(item),
+          let infoitem = get.character(item),
             info = _item[1][1];
           node.node.name.innerHTML = get.slimName(item);
-          var hp = info[0],
+          let hp = info[0],
             maxHp = info[1],
             hujia = info[2];
           if (
@@ -1291,12 +1298,12 @@ export default {
             node.node.name.dataset.nature = get.groupnature(get.bordergroup(infoitem));
             node.node.group.dataset.nature = get.groupnature(get.bordergroup(infoitem), "raw");
             ui.create.div(node.node.hp);
-            var str = get.numStr(hp);
+            let str = get.numStr(hp);
             if (hp !== maxHp) {
               str += "/";
               str += get.numStr(maxHp);
             }
-            var textnode = ui.create.div(".text", str, node.node.hp);
+            let textnode = ui.create.div(".text", str, node.node.hp);
             if (info[0] == 0) node.node.hp.hide()
             else if (get.infoHp(info[0]) <= 3) node.node.hp.dataset.condition = "mid";
             else node.node.hp.dataset.condition = "high";
@@ -1311,11 +1318,11 @@ export default {
               else node.node.hp.innerHTML = get.numStr(info[0]);
               node.node.hp.classList.add("text");
             } else {
-              for (var i = 0; i < maxHp; i++) {
-                var next = ui.create.div("", node.node.hp);
+              for (let i = 0; i < maxHp; i++) {
+                let next = ui.create.div("", node.node.hp);
                 if (i >= hp) next.classList.add("exclude");
               }
-              for (var i = 0; i < shield; i++) ui.create.div(node.node.hp, ".shield");
+              for (let i = 0; i < shield; i++) ui.create.div(node.node.hp, ".shield");
             }
           }
           if (node.node.hp.childNodes.length == 0) node.node.name.style.top = "8px";
