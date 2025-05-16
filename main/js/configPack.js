@@ -80,7 +80,7 @@ export default {
           player.reinit(name2, name2 + 'baonu');
         }
         player.update();
-        await event.trigger("jlsgsy_baonuAfter")
+        await event.trigger("jlsgsy_baonuAfter");
         let evt = trigger.getParent(1, true);
         while (evt?.name != "phaseLoop") {
           if (evt) {
@@ -193,6 +193,7 @@ export default {
       async content(event, trigger, player) {
         await player.expandEquip(5);
         player.removeSkill(event.name);
+        player.update();
       }
     };
     const cardPacks = lib.cardPack,
@@ -207,25 +208,35 @@ export default {
         });
         if (baowu.length > 1) {
           const num = baowu.length - 1;
-          const { result } = await player.chooseButton([`选择替换掉${get.cnNumber(num)}张装备牌`, [baowu, "vcard"]], true, num)
-            .set("ai", button => {
-              const player = get.player();
-              return 10 - get.value(button.link, player);
-            });
-          if (result.bool) {
-            const replacedCards = result.links.reduce((cards, vcard) => {
-              if (vcard.cards) cards.addArray(vcard.cards);
-              return cards;
-            }, []);
-            const loseEvent = player.lose(replacedCards, "visible").set("type", "equip").set("getlx", false);
-            if (result.links.some(cardx => get.info(cardx, false)?.loseThrow)) {
-              player.$throw(replacedCards, 1000);
+          const { result } = await game.createEvent("replaceEquip")
+            .set("player", player)
+            .set("vcards", baowu)
+            .setContent(async function (event, trigger, player) {
+              const replacedCards = [];
+              const { result } = await player.chooseButton([`选择替换掉${get.cnNumber(num)}张装备牌`, [baowu, "vcard"]], true, num)
+                .set("ai", button => {
+                  const player = get.player();
+                  return 10 - get.value(button.link, player);
+                });
+              if (result?.bool && result?.links?.length) replacedCards.addArray(result.links);
+              event.result = {
+                vcards: replacedCards,
+                cards: replacedCards.reduce((cards, vcard) => {
+                  if (vcard.cards) cards.addArray(vcard.cards);
+                  return cards;
+                }, []),
+              };
+            })
+          if (result?.vcards?.length) {
+            if (result.cards.length) {
+              const loseEvent = player.lose(result.cards, "visible").set("type", "equip").set("getlx", false);
+              player.$throw(result.cards, 1000);
+              await loseEvent;
+              for (let cardx of result.cards) {
+                if (cardx.willBeDestroyed("discardPile", player, event)) cardx.selfDestroy(event);
+              };
             }
-            await loseEvent;
-            for (let cardx of replacedCards) {
-              if (cardx.willBeDestroyed("discardPile", player, event)) cardx.selfDestroy(event);
-            };
-            for (let i of result.links) {
+            for (let i of result.vcards) {
               player.removeVirtualEquip(i);
             };
           }
