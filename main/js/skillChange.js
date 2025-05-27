@@ -4139,7 +4139,7 @@ export default {
           intro: {
             content: function (storage, player, skill) {
               var list = player.getSkills(null, false, false).filter(function (i) {
-                return lib.skill.jlsg_zhenhun_mark.skillBlocker(i, player);
+                return lib.skill.jlsg_zhenhun_debuff.skillBlocker(i, player);
               });
               if (list.length) return '你不处于濒死时不能使用【桃】<br>失效技能：' + get.translation(list);
               return '你不处于濒死时不能使用【桃】';
@@ -4384,20 +4384,21 @@ export default {
                 trigger.effectCount += 2;
                 break;
               case 'shan':
-                if (trigger.respondTo && trigger.respondTo[0].isIn()) trigger.respondTo[0].randomDiscard(2, "he");
+                if (trigger.respondTo && trigger.respondTo[0]?.isIn()) {
+                  trigger.respondTo[0].randomDiscard(2, "he");
+                }
                 break;
               case 'wuxie':
                 trigger.directHit.addArray(game.players);
                 player.when({ global: 'eventNeutralized' })
+                  .filter(evt => {
+                    if (evt.type != "card" && evt.name != "_wuxie") { return false; }
+                    return evt._neutralize_event.card == trigger.card;
+                  })
                   .then(() => {
-                    if (game.hasGlobalHistory('everything', evt => {
-                      if (evt._neutralized || evt.responded && (!evt.result || !evt.result.bool)) {
-                        if (evt.getParent().card == trigger.card) return true;
-                      }
-                      return false;
-                    })) {
-                      var cards = trigger.cards.filterInD('od');
-                      if (cards) player.gain(cards, 'gain2');
+                    let cards = trigger.cards.filterInD('od');
+                    if (cards.length) {
+                      player.gain(cards, 'gain2');
                     }
                   });
                 break;
