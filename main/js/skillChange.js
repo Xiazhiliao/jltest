@@ -2855,7 +2855,7 @@ export default {
       },
     },
     jlsg_xionglve: {
-      audio: 'ext:极略/jlsg_xionglve1.mp3',
+      audio: 'ext:极略/audio/skill/jlsg_xionglve1.mp3',
       marktext: `略`,
       intro: {
         markcount: "expansion",
@@ -2942,7 +2942,7 @@ export default {
         backup(links, player) {
           if (get.itemtype(links[1]) == 'card') links.reverse();
           return {
-            audio: 'ext:极略:2',
+            audio: 'jlsg_xionglve',
             viewAs: function () {
               if (get.type(links[0]) == 'equip') return links[0];
               else return { name: links[1][2], nature: links[1][3] }
@@ -2992,7 +2992,7 @@ export default {
       group: 'jlsg_xionglve_draw',
       subSkill: {
         draw: {
-          audio: "ext:极略/jlsg_xionglve21.mp3",
+          audio: "ext:极略/audio/skill/jlsg_xionglve21.mp3",
           trigger: { player: "phaseDrawBegin1" },
           filter: (event) => !event.numFixed,
           prompt: `雄略：是否放弃摸牌，改为亮出牌堆顶的两张牌`,
