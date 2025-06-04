@@ -654,7 +654,7 @@ export default {
             const player = get.player();
             return get.effect(target, trigger.card, trigger.player, player) > 0;
           });
-        if (!result.bool || !result.targets.length) return;
+        if (!result?.bool || !result?.targets?.length) return;
         else {
           result.targets.sortBySeat(trigger.player)
           player.line(result.targets);
@@ -3498,9 +3498,9 @@ export default {
       record: function (player, norecord = false) {
         let hp = player.getHp(),
           maxhp = player.maxHp,
-          skills = player.getSkills(null, false, false).filter(i => lib.translate[i] != undefined) || [],
-          ying = player.storage.jlsg_yingshi || null,
-          lang = player.storage.jlsg_langxi || null;
+          skills = player.getSkills(null, false, false).filter(i => lib.translate[i] != undefined),
+          ying = player.storage.jlsg_yingshi || [],
+          lang = player.storage.jlsg_langxi || [];
         const list = {
           "体力": Number(hp.toString().slice()),
           "体力上限": Number(maxhp.toString().slice()),
