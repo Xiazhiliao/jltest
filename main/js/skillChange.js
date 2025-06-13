@@ -1,6 +1,172 @@
 import { lib, game, ui, get, ai, _status } from '../../../../noname.js';
 //技能调整
 export default {
+  //SR曹操
+  jlsgsr_caocao: {
+    jlsg_zhaoxiang: {
+      audio: "ext:极略/audio/skill:1",
+      trigger: { global: 'useCardToPlayer' },
+      filter: function (event, player) {
+        if (event.card.name != "sha") { return false; }
+        else if (event.player == player) { return false; }
+        return event.player.countGainableCards(player, "h");
+      },
+      async cost(event, trigger, player) {
+        event.result = await player.gainPlayerCard(get.prompt2("jlsg_zhaoxiang", trigger.player), trigger.player, "h")
+          .set("ai", button => {
+            if (get.event("check")) return get.event().getRand(button.link.cardid.toString());
+            return 0;
+          })
+          .set("check", (function () {
+            const gainEff = get.effect(trigger.player, { name: "shunshou_copy2" }, player, player),
+              shaEff1 = trigger.targets.reduce((sum, target) => sum + get.effect(trigger.player, trigger.card, target, player), 0),
+              shaEff2 = get.effect(trigger.player, trigger.card, player, player);
+            return gainEff + shaEff1 > 0 || gainEff + shaEff2 > 0;
+          })())
+          .set("logSkill", ["jlsg_zhaoxiang", trigger.player])
+          .set("chooseonly", true)
+          .forResult();
+        if (event.result?.bool) {
+          event.result.skill_popup = false;
+          event.result.targets = [trigger.player];
+        }
+      },
+      async content(event, trigger, player) {
+        const { cards, targets: [target] } = event;
+        await player.gain(cards, target, "bySelf").set("ainimate", false);
+        const { result } = await player.chooseControlList("招降", ["令此【杀】不能被响应", "将此【杀】的目标改为你"], true)
+          .set("ai", () => get.event("choice"))
+          .set("choice", (function () {
+            const gainEff = get.effect(trigger.player, { name: "shunshou_copy2" }, player, player),
+              shaEff2 = get.effect(trigger.player, trigger.card, player, player);
+            if (gainEff + shaEff2 > 0) { return 1 }
+            return 0;
+          })())
+        if (result?.index == 0) {
+          game.log(player, "令", trigger.card, "不能被响应");
+          trigger.getParent().directHit.addArray(game.players);
+        } else if (result?.index == 1) {
+          game.log(player, "将", trigger.card, "的目标", trigger.target, "改为", player);
+          trigger.targets.remove(trigger.target);
+          trigger.targets.add(player);
+          trigger.getParent().triggeredTargets1.remove(trigger.target);
+          trigger.getParent().triggeredTargets1.add(player);
+          trigger.getParent().targets.remove(trigger.target);
+          trigger.getParent().targets.add(player);
+        }
+      },
+      ai: {
+        expose: 0.5,
+      },
+    },
+    jlsg_zhishi: {
+      audio: "ext:极略/audio/skill:2",
+      trigger: { global: "damageEnd" },
+      filter(event, player) {
+        return event.num > 0 && event.player.isIn();
+      },
+      prompt(event, player) {
+        return get.prompt("jlsg_zhishi", event.player);
+      },
+      prompt2: "令其从你拥有的随机两个能在此时机发动的技能中选择一个并发动",
+      check(event, player) {
+        return get.attitude(player, event.player) > 0;
+      },
+      logTarget: "player",
+      async content(event, trigger, player) {
+        if (!_status.characterlist) {
+          lib.skill.pingjian.initList();
+        }
+        const allList = _status.characterlist.slice(0);
+        game.countPlayer(function (current) {
+          if (current.name && lib.character[current.name] && current.name.indexOf("gz_shibing") != 0 && current.name.indexOf("gz_jun_") != 0) allList.add(current.name);
+          if (current.name1 && lib.character[current.name1] && current.name1.indexOf("gz_shibing") != 0 && current.name1.indexOf("gz_jun_") != 0) allList.add(current.name1);
+          if (current.name2 && lib.character[current.name2] && current.name2.indexOf("gz_shibing") != 0 && current.name2.indexOf("gz_jun_") != 0) allList.add(current.name2);
+        });
+        const skills = [];
+        allList.randomSort();
+        const name2 = event.triggername;
+        for (const name of allList) {
+          if (name.indexOf("zuoci") != -1 || name.indexOf("xushao") != -1) continue;
+          const skills2 = get.character(name).skills || [];
+          for (const skill of skills2) {
+            if (skills.includes(skill)) {
+              continue;
+            }
+            const list = [skill];
+            game.expandSkills(list);
+            for (const skill2 of list) {
+              const info = lib.skill[skill2];
+              if (get.is.zhuanhuanji(skill2, player)) continue;
+              if (
+                !info || !info.trigger
+                || !info.trigger.player || info.silent
+                || info.limited || info.juexingji
+                || info.hiddenSkill || info.dutySkill
+                || (info.zhuSkill && !player.isZhu2())
+              ) {
+                continue;
+              }
+              if (info.trigger.player == name2 || (Array.isArray(info.trigger.player) && info.trigger.player.includes(name2))) {
+                if (info.ai && (info.ai.combo && !trigger.player.hasSkill(info.ai.combo) || info.ai.notemp || info.ai.neg)) continue;
+                if (info.init) continue;
+                if (info.filter) {
+                  let indexedData;
+                  if (info.getIndex) {
+                    indexedData = info.getIndex(trigger, player, name2);
+                  }
+                  if (Array.isArray(indexedData)) {
+                    for (let target of indexedData) {
+                      try {
+                        const bool = info.filter(trigger, player, name2, target);
+                        if (!bool) continue;
+                      } catch (e) {
+                        continue;
+                      }
+                    };
+                  } else {
+                    try {
+                      const bool = info.filter(trigger, player, name2);
+                      if (!bool) continue;
+                    } catch (e) {
+                      continue;
+                    }
+                  }
+                }
+                skills.add(skill);
+                if (skills.length > 1) break;
+              }
+            };
+          };
+          if (skills.length > 1) break;
+        };
+        if (!skills.length) { return; }
+        const buttons = skills.map(i => [
+          i,
+          '<div class="popup pointerdiv" style="width:80%;display:inline-block"><div class="skill">【' +
+          get.translation(i) +
+          "】</div><div>" +
+          lib.translate[i + "_info"] +
+          "</div></div>"
+        ]);
+        const { result } = await trigger.player.chooseButton(true, ["选择要发动的技能", [buttons, "textbutton"]])
+          .set("ai", button => get.skillRank(button.link, "out"));
+        if (!result?.bool) { return; }
+        const skill = result.links[0];
+        game.log(trigger.player, `选择了【${get.translation(skill)}】`);
+        trigger.player.addTempSkill(skill, { player: "damageAfter" });
+      },
+      ai: {
+        maixue: true,
+        maixie_hp: true,
+      },
+    },
+    translate: {
+      jlsg_zhaoxiang_info: "当其他角色使用【杀】指定目标时，你可以获得其一张手牌，然后选择一项：1．令此【杀】不能被响应；2．将此【杀】的目标改为你。",
+      jlsg_zhishi_info: "当任意角色受到伤害后，你可以令其从你拥有的随机两个能在此时机发动的技能中选择一个并发动。",
+    },
+  },
+
   //废案
   /*SK曹婴
   jlsgsk_caoying: {

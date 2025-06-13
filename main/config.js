@@ -51,6 +51,13 @@ const configInfo = {
   },
 },
   pack = {
+    sr: {
+      jlsgsr_caocao: {
+        name: "SR曹操(更新)",
+        intro: "技能调整为最新版(6.5.1)",
+        init: false,
+      },
+    },
     sk: {
       jlsgsk_guansuo: {
         name: "SK关索(更新)",
