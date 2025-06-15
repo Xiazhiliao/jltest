@@ -6,7 +6,7 @@ export default {
     jlsg_zhaoxiang: {
       audio: "ext:极略/audio/skill:1",
       trigger: { global: 'useCardToPlayer' },
-      filter: function (event, player) {
+      filter(event, player) {
         if (event.card.name != "sha") { return false; }
         else if (event.player == player) { return false; }
         return event.player.countGainableCards(player, "h");
@@ -19,7 +19,7 @@ export default {
           })
           .set("check", (function () {
             const gainEff = get.effect(trigger.player, { name: "shunshou_copy2" }, player, player),
-              shaEff1 = trigger.targets.reduce((sum, target) => sum + get.effect(trigger.player, trigger.card, target, player), 0),
+              shaEff1 = get.effect(trigger.player, trigger.card, trigger.target, player),
               shaEff2 = get.effect(trigger.player, trigger.card, player, player);
             return gainEff + shaEff1 > 0 || gainEff + shaEff2 > 0;
           })())
@@ -37,10 +37,10 @@ export default {
         const { result } = await player.chooseControlList("招降", ["令此【杀】不能被响应", "将此【杀】的目标改为你"], true)
           .set("ai", () => get.event("choice"))
           .set("choice", (function () {
-            const gainEff = get.effect(trigger.player, { name: "shunshou_copy2" }, player, player),
+            const shaEff1 = get.effect(trigger.player, trigger.card, trigger.target, player),
               shaEff2 = get.effect(trigger.player, trigger.card, player, player);
-            if (gainEff + shaEff2 > 0) { return 1 }
-            return 0;
+            if (shaEff1 > shaEff2) { return 0 }
+            return 1;
           })())
         if (result?.index == 0) {
           game.log(player, "令", trigger.card, "不能被响应");
@@ -85,7 +85,6 @@ export default {
         });
         const skills = [];
         allList.randomSort();
-        const name2 = event.triggername;
         for (const name of allList) {
           if (name.indexOf("zuoci") != -1 || name.indexOf("xushao") != -1) continue;
           const skills2 = get.character(name).skills || [];
@@ -107,18 +106,18 @@ export default {
               ) {
                 continue;
               }
-              if (info.trigger.player == name2 || (Array.isArray(info.trigger.player) && info.trigger.player.includes(name2))) {
+              if (info.trigger.player == "damageEnd" || (Array.isArray(info.trigger.player) && info.trigger.player.includes("damageEnd"))) {
                 if (info.ai && (info.ai.combo && !trigger.player.hasSkill(info.ai.combo) || info.ai.notemp || info.ai.neg)) continue;
                 if (info.init) continue;
                 if (info.filter) {
                   let indexedData;
-                  if (info.getIndex) {
-                    indexedData = info.getIndex(trigger, player, name2);
+                  if (typeof info.getIndex === "function") {
+                    indexedData = info.getIndex(trigger, player, "damageEnd");
                   }
                   if (Array.isArray(indexedData)) {
                     for (let target of indexedData) {
                       try {
-                        const bool = info.filter(trigger, player, name2, target);
+                        const bool = info.filter(trigger, player, "damageEnd", target);
                         if (!bool) continue;
                       } catch (e) {
                         continue;
@@ -126,7 +125,7 @@ export default {
                     };
                   } else {
                     try {
-                      const bool = info.filter(trigger, player, name2);
+                      const bool = info.filter(trigger, player, "damageEnd");
                       if (!bool) continue;
                     } catch (e) {
                       continue;
@@ -155,6 +154,35 @@ export default {
         const skill = result.links[0];
         game.log(trigger.player, `选择了【${get.translation(skill)}】`);
         trigger.player.addTempSkill(skill, { player: "damageAfter" });
+        //若目标角色在arrangeTrigger中顺序已过，则手动createTrigger
+        const arrange = event.getParent("arrangeTrigger");
+        if (arrange) {
+          const { doingList, doing } = arrange;
+          const num1 = doingList.indexOf(doing),
+            num2 = doingList.findIndex(i => i.player == trigger.player);
+          if (num1 > num2) {
+            const info = lib.skill[skill];
+            let toadds = [];
+            if (typeof info.getIndex === "function") {
+              const indexedResult = info.getIndex(trigger, player, "damageEnd");
+              if (Array.isArray(indexedResult)) {
+                indexedResult.forEach(indexedData => {
+                  toadds.push({ indexedData });
+                });
+              } else if (typeof indexedResult === "number" && indexedResult > 0) {
+                for (let i = 0; i < indexedResult; i++) {
+                  toadds.push({ indexedData: true });
+                }
+              }
+            } else {
+              toadds.push({ indexedData: true });
+            }
+            for (let i of toadds) {
+              const { indexedData } = i;
+              await game.createTrigger("damageEnd", skill, trigger.player, trigger, indexedData);
+            };
+          }
+        }
       },
       ai: {
         maixue: true,
