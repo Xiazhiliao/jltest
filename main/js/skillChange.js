@@ -96,13 +96,13 @@ export default {
             game.expandSkills(list);
             for (const skill2 of list) {
               const info = lib.skill[skill2];
-              if (get.is.zhuanhuanji(skill2, player)) continue;
+              if (get.is.zhuanhuanji(skill2, trigger.player)) continue;
               if (
                 !info || !info.trigger
                 || !info.trigger.player || info.silent
                 || info.limited || info.juexingji
                 || info.hiddenSkill || info.dutySkill
-                || (info.zhuSkill && !player.isZhu2())
+                || (info.zhuSkill && !trigger.player.isZhu2())
               ) {
                 continue;
               }
@@ -110,14 +110,14 @@ export default {
                 if (info.ai && (info.ai.combo && !trigger.player.hasSkill(info.ai.combo) || info.ai.notemp || info.ai.neg)) continue;
                 if (info.init) continue;
                 if (info.filter) {
-                  let indexedData;
+									let indexedData;
                   if (typeof info.getIndex === "function") {
-                    indexedData = info.getIndex(trigger, player, "damageEnd");
+                    indexedData = info.getIndex(trigger, trigger.player, "damageEnd");
                   }
                   if (Array.isArray(indexedData)) {
                     for (let target of indexedData) {
                       try {
-                        const bool = info.filter(trigger, player, "damageEnd", target);
+                        const bool = info.filter(trigger, trigger.player, "damageEnd", target);
                         if (!bool) continue;
                       } catch (e) {
                         continue;
@@ -125,7 +125,7 @@ export default {
                     };
                   } else {
                     try {
-                      const bool = info.filter(trigger, player, "damageEnd");
+                      const bool = info.filter(trigger, trigger.player, "damageEnd", true);
                       if (!bool) continue;
                     } catch (e) {
                       continue;
@@ -153,9 +153,12 @@ export default {
         if (!result?.bool) { return; }
         const skill = result.links[0];
         game.log(trigger.player, `选择了【${get.translation(skill)}】`);
+        //坐等本体修复
+        event.addTrigger = lib.skill.jlsg_zhishi.addTrigger;
+
         trigger.player.addTempSkill(skill, { player: "damageAfter" });
         //若目标角色在arrangeTrigger中顺序已过，则手动createTrigger
-        const arrange = event.getParent("arrangeTrigger");
+        const arrange = event.getParent("arrangeTrigger", true);
         if (arrange) {
           const { doingList, doing } = arrange;
           const num1 = doingList.indexOf(doing),
@@ -164,7 +167,7 @@ export default {
             const info = lib.skill[skill];
             let toadds = [];
             if (typeof info.getIndex === "function") {
-              const indexedResult = info.getIndex(trigger, player, "damageEnd");
+              const indexedResult = info.getIndex(trigger, trigger.player, "damageEnd");
               if (Array.isArray(indexedResult)) {
                 indexedResult.forEach(indexedData => {
                   toadds.push({ indexedData });
@@ -182,6 +185,69 @@ export default {
               await game.createTrigger("damageEnd", skill, trigger.player, trigger, indexedData);
             };
           }
+        }
+      },
+      addTrigger(skills, player) {
+        if (!player || !skills) return this;
+        let evt = this;
+        if (typeof skills == "string") skills = [skills];
+        while (true) {
+          evt = evt.getParent("arrangeTrigger");
+          if (!evt || evt.name != "arrangeTrigger" || !evt.doingList) return this;
+          const doing = evt.doingList.find(i => i.player === player);
+          const firstDo = evt.doingList.find(i => i.player === "firstDo");
+          const lastDo = evt.doingList.find(i => i.player === "lastDo");
+          skills.forEach(skill => {
+            const info = lib.skill[skill];
+            if (!info.trigger) return;
+            if (
+              !Object.keys(info.trigger).some(i => {
+                if (Array.isArray(info.trigger[i])) return info.trigger[i].includes(evt.triggername);
+                return info.trigger[i] === evt.triggername;
+              })
+            )
+              return;
+            let toadds = [];
+            if (typeof info.getIndex === "function") {
+              const indexedResult = info.getIndex(evt.getTrigger(), player, evt.triggername);
+              if (Array.isArray(indexedResult)) {
+                indexedResult.forEach(indexedData => {
+                  toadds.push({
+                    skill: skill,
+                    player: player,
+                    priority: get.priority(skill),
+                    indexedData,
+                  });
+                });
+              } else if (typeof indexedResult === "number" && indexedResult > 0) {
+                for (let i = 0; i < indexedResult; i++) {
+                  toadds.push({
+                    skill: skill,
+                    player: player,
+                    priority: get.priority(skill),
+                    indexedData: true,
+                  });
+                }
+              }
+            } else {
+              toadds.push({
+                skill: skill,
+                player: player,
+                priority: get.priority(skill),
+              });
+            }
+            const map = info.firstDo ? firstDo : info.lastDo ? lastDo : doing;
+            if (!map) return;
+            for (const toadd of toadds) {
+              if (!toadd.indexedData) {
+                if (map.doneList.some(i => i.skill === toadd.skill && i.player === toadd.player)) return;
+                if (map.todoList.some(i => i.skill === toadd.skill && i.player === toadd.player)) return;
+              }
+              map.todoList.add(toadd);
+            }
+            if (typeof map.player === "string") map.todoList.sort((a, b) => b.priority - a.priority || evt.playerMap.indexOf(a) - evt.playerMap.indexOf(b));
+            else map.todoList.sort((a, b) => b.priority - a.priority);
+          });
         }
       },
       ai: {
@@ -2012,7 +2078,7 @@ export default {
   jlsgsk_lvlingqi: {
     info: function () {
       lib.characterPack["jlsg_sk"].jlsgsk_lvlingqi.skills = ["jlsg_jiwux"];
-      if (!_status.connectMode) lib.character.jlsgsk_lvlingqi.skills = ["jlsg_jiwux"];
+      if (!_status.connectMode && lib.character.jlsgsk_lvlingqi) lib.character.jlsgsk_lvlingqi.skills = ["jlsg_jiwux"];
     }
   },
 
@@ -3263,7 +3329,7 @@ export default {
     },
     info: function () {
       lib.characterPack["jlsg_soul"].jlsgsoul_sunquan[2] = 5;
-      if (!_status.connectMode) {
+      if (!_status.connectMode && lib.character.jlsgsoul_sunquan) {
         lib.character.jlsgsoul_sunquan[2] = 5;
       }
     }
