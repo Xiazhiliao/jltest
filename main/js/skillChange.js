@@ -125,13 +125,16 @@ export default {
 										indexedData = info.getIndex(trigger, trigger.player, "damageEnd");
 									}
 									if (Array.isArray(indexedData)) {
-										for (let target of indexedData) {
+										if (!indexedData.some(target => {
 											try {
 												const bool = info.filter(trigger, trigger.player, "damageEnd", target);
-												if (!bool) continue;
+												if (bool) return true;
+												return false;
 											} catch (e) {
-												continue;
+												return false;
 											}
+										})) {
+											continue;
 										}
 									} else {
 										try {
@@ -170,25 +173,30 @@ export default {
 					const num1 = doingList.indexOf(doing),
 						num2 = doingList.findIndex(i => i.player == trigger.player);
 					if (num1 > num2) {
-						const info = lib.skill[skill];
-						let toadds = [];
-						if (typeof info.getIndex === "function") {
-							const indexedResult = info.getIndex(trigger, trigger.player, "damageEnd");
-							if (Array.isArray(indexedResult)) {
-								indexedResult.forEach(indexedData => {
-									toadds.push({ indexedData });
-								});
-							} else if (typeof indexedResult === "number" && indexedResult > 0) {
-								for (let i = 0; i < indexedResult; i++) {
-									toadds.push({ indexedData: true });
+						const skills2 = game.expandSkills([skill]),
+							toadds = [];
+						for (let skill2 of skills2) {
+							const info = lib.skill[skill2];
+							if (typeof info.getIndex === "function") {
+								const indexedResult = info.getIndex(trigger, trigger.player, "damageEnd");
+								if (Array.isArray(indexedResult)) {
+									indexedResult.forEach(indexedData => {
+										toadds.push({ indexedData, skill2 });
+									});
+								} else if (typeof indexedResult === "number" && indexedResult > 0) {
+									for (let i = 0; i < indexedResult; i++) {
+										toadds.push({ indexedData: true, skill2 });
+									}
 								}
+							} else {
+								toadds.push({ indexedData: true, skill2 });
 							}
-						} else {
-							toadds.push({ indexedData: true });
 						}
 						for (let i of toadds) {
-							const { indexedData } = i;
-							await game.createTrigger("damageEnd", skill, trigger.player, trigger, indexedData);
+							const { indexedData, skill2 } = i;
+							if (lib.filter.filterTrigger(trigger, trigger.player, "damageEnd", skill2, indexedData)) {
+								await game.createTrigger("damageEnd", skill2, trigger.player, trigger, indexedData);
+							}
 						}
 					}
 				}
